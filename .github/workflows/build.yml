@@ -21,7 +21,7 @@ jobs:
         sudo apt update
         sudo apt install -y openjdk-11-jdk git ccache lz4 unzip bc repo curl
 
-    # مرحله 3: نصب نسخه جدید repo
+    # مرحله 3: نصب آخرین نسخه repo
     - name: Install latest repo
       run: |
         curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
@@ -35,7 +35,7 @@ jobs:
         cd ~/aosp
         
         # کلون کردن کد منبع AOSP
-        repo init -u https://android.googlesource.com/platform/manifest -b android-15
+        repo init -u https://android.googlesource.com/platform/manifest -b android-15.0
         repo sync -j$(nproc)
 
     # مرحله 5: اضافه کردن Device Tree، Kernel و Vendor
