@@ -34,8 +34,8 @@ jobs:
         mkdir ~/aosp
         cd ~/aosp
         
-        # کلون کردن کد منبع AOSP
-        repo init -u https://android.googlesource.com/platform/manifest -b android-15.0
+        # کلون کردن کد منبع AOSP با شاخه جدید
+        repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r5
         repo sync -j$(nproc)
 
     # مرحله 5: اضافه کردن Device Tree، Kernel و Vendor
