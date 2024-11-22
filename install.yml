@@ -1,0 +1,63 @@
+name: Build AOSP for Galaxy A70
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    # مرحله 1: کلون کردن مخزن
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # مرحله 2: نصب پیش‌نیازها
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y openjdk-11-jdk git ccache lz4 unzip bc repo
+
+    # مرحله 3: تنظیم محیط ساخت
+    - name: Set up environment
+      run: |
+        # ایجاد دایرکتوری برای AOSP
+        mkdir ~/aosp
+        cd ~/aosp
+        
+        # کلون کردن کد منبع AOSP
+        repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r0.1
+        repo sync -j$(nproc)
+
+    # مرحله 4: اضافه کردن Device Tree، Kernel و Vendor
+    - name: Clone device, kernel, and vendor
+      run: |
+        # Device Tree (پیکربندی دستگاه)
+        git clone https://github.com/thanasistrisp/android_device_samsung_a70q.git device/samsung/a70q
+        
+        # Kernel Source (سورس کرنل)
+        git clone https://github.com/rtd1250/android_kernel_samsung_a70q.git kernel/samsung/a70q
+        
+        # Vendor Blobs (فایل‌های اختصاصی فروشنده)
+        git clone https://github.com/enrico-mo/android_vendor_samsung_a70q.git vendor/samsung/a70q
+
+    # مرحله 5: تنظیم محیط برای ساخت
+    - name: Set up build environment
+      run: |
+        source build/envsetup.sh
+        lunch aosp_a70q-userdebug
+
+    # مرحله 6: ساخت AOSP
+    - name: Build AOSP
+      run: |
+        make -j$(nproc)
+
+    # مرحله 7: ذخیره فایل‌های ساخته شده به عنوان artifact
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: AOSP-Build
+        path: out/target/product/a70q/*.img
